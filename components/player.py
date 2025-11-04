@@ -18,124 +18,40 @@ class Player:
         self.model.setPos(self.position)
     
     def _create_player_model(self):
-        """Create a humanoid character model"""
-        # Main container
-        player_node = self.render.attachNewNode("player")
-        
-        # Legs (bottom)
-        left_leg = self.loader.loadModel("models/box")
-        left_leg.setScale(0.4, 0.4, 1.2)
-        left_leg.setPos(-0.4, 0, 0.6)
-        left_leg.setColor(0.3, 0.3, 0.3, 1)  # Dark pants
-        left_leg.reparentTo(player_node)
-        
-        right_leg = self.loader.loadModel("models/box")
-        right_leg.setScale(0.4, 0.4, 1.2)
-        right_leg.setPos(0.4, 0, 0.6)
-        right_leg.setColor(0.3, 0.3, 0.3, 1)
-        right_leg.reparentTo(player_node)
-        
-        # Feet
-        left_foot = self.loader.loadModel("models/box")
-        left_foot.setScale(0.4, 0.6, 0.2)
-        left_foot.setPos(-0.4, 0.15, 0)
-        left_foot.setColor(0.2, 0.2, 0.2, 1)
-        left_foot.reparentTo(player_node)
-        
-        right_foot = self.loader.loadModel("models/box")
-        right_foot.setScale(0.4, 0.6, 0.2)
-        right_foot.setPos(0.4, 0.15, 0)
-        right_foot.setColor(0.2, 0.2, 0.2, 1)
-        right_foot.reparentTo(player_node)
-        
-        # Body (torso) - centered above legs
-        body = self.loader.loadModel("models/box")
-        body.setScale(1.0, 0.6, 1.4)
-        body.setPos(0, 0, 2.1)
-        body.setColor(0.2, 0.4, 0.8, 1)  # Blue shirt
-        body.reparentTo(player_node)
-        
-        # Neck
-        neck = self.loader.loadModel("models/box")
-        neck.setScale(0.3, 0.3, 0.3)
-        neck.setPos(0, 0, 2.95)
-        neck.setColor(0.95, 0.8, 0.7, 1)  # Skin tone
-        neck.reparentTo(player_node)
-        
-        # Head - directly above body
-        head = self.loader.loadModel("models/misc/sphere")
-        head.setScale(0.6)
-        head.setPos(0, 0, 3.5)
-        head.setColor(0.95, 0.8, 0.7, 1)  # Skin tone
-        head.reparentTo(player_node)
-        
-        # Eyes
-        left_eye = self.loader.loadModel("models/misc/sphere")
-        left_eye.setScale(0.12)
-        left_eye.setPos(-0.2, -0.55, 3.55)
-        left_eye.setColor(1, 1, 1, 1)
-        left_eye.reparentTo(player_node)
-        
-        right_eye = self.loader.loadModel("models/misc/sphere")
-        right_eye.setScale(0.12)
-        right_eye.setPos(0.2, -0.55, 3.55)
-        right_eye.setColor(1, 1, 1, 1)
-        right_eye.reparentTo(player_node)
-        
-        # Pupils
-        left_pupil = self.loader.loadModel("models/misc/sphere")
-        left_pupil.setScale(0.06)
-        left_pupil.setPos(-0.2, -0.63, 3.55)
-        left_pupil.setColor(0.1, 0.1, 0.1, 1)
-        left_pupil.reparentTo(player_node)
-        
-        right_pupil = self.loader.loadModel("models/misc/sphere")
-        right_pupil.setScale(0.06)
-        right_pupil.setPos(0.2, -0.63, 3.55)
-        right_pupil.setColor(0.1, 0.1, 0.1, 1)
-        right_pupil.reparentTo(player_node)
-        
-        # Smile
-        mouth = self.loader.loadModel("models/box")
-        mouth.setScale(0.25, 0.05, 0.05)
-        mouth.setPos(0, -0.58, 3.25)
-        mouth.setColor(0.8, 0.3, 0.3, 1)
-        mouth.reparentTo(player_node)
-        
-        # Arms - attached to body
-        left_arm = self.loader.loadModel("models/box")
-        left_arm.setScale(0.3, 0.3, 1.1)
-        left_arm.setPos(-0.9, 0, 2.1)
-        left_arm.setColor(0.2, 0.4, 0.8, 1)
-        left_arm.reparentTo(player_node)
-        
-        right_arm = self.loader.loadModel("models/box")
-        right_arm.setScale(0.3, 0.3, 1.1)
-        right_arm.setPos(0.9, 0, 2.1)
-        right_arm.setColor(0.2, 0.4, 0.8, 1)
-        right_arm.reparentTo(player_node)
-        
-        # Hands
-        left_hand = self.loader.loadModel("models/misc/sphere")
-        left_hand.setScale(0.25)
-        left_hand.setPos(-0.9, 0, 1.25)
-        left_hand.setColor(0.95, 0.8, 0.7, 1)
-        left_hand.reparentTo(player_node)
-        
-        right_hand = self.loader.loadModel("models/misc/sphere")
-        right_hand.setScale(0.25)
-        right_hand.setPos(0.9, 0, 1.25)
-        right_hand.setColor(0.95, 0.8, 0.7, 1)
-        right_hand.reparentTo(player_node)
-        
-        # Hat/cap for style
-        hat = self.loader.loadModel("models/box")
-        hat.setScale(0.7, 0.7, 0.25)
-        hat.setPos(0, 0, 4.0)
-        hat.setColor(0.8, 0.1, 0.1, 1)  # Red cap
-        hat.reparentTo(player_node)
-        
-        return player_node
+        """Load 3D player model from OBJ file"""
+        # Load the IronMan OBJ model
+        try:
+            player_model = self.loader.loadModel("components/IronMan.obj")
+            if player_model:
+                player_model.reparentTo(self.render)
+                
+                # Scale the model appropriately (making it smaller)
+                player_model.setScale(0.01, 0.01, 0.01)
+                
+                # Stand the model upright (rotate 90 degrees on pitch)
+                player_model.setP(90)  # Pitch to stand up
+                player_model.setH(180)  # Face forward
+                
+                # Set color (red and gold for Iron Man!)
+                player_model.setColor(0.9, 0.1, 0.1, 1)  # Red color
+                
+                # List all loaded nodes for debugging
+                print("IronMan OBJ Model loaded successfully!")
+                player_model.ls()
+                
+                return player_model
+            else:
+                print("OBJ model returned None")
+                raise Exception("Model not loaded")
+        except Exception as e:
+            print(f"Error loading OBJ model: {e}")
+            print("Using fallback sphere model")
+            # Fallback to a simple sphere if OBJ fails to load
+            fallback = self.loader.loadModel("models/misc/sphere")
+            fallback.setScale(1.0)
+            fallback.setColor(0.2, 0.4, 0.8, 1)
+            fallback.reparentTo(self.render)
+            return fallback
     
     def update(self, keys, dt):
         """Update player position and rotation"""
