@@ -13,6 +13,8 @@ from components.trees import TreeManager
 from components.lighting import LightingManager
 from components.camera import CameraController
 from components.ui import GameUI
+from components.coins import CoinManager
+from components.obstacles import ObstacleManager
 
 class TerrainExplorer(ShowBase):
     def __init__(self):
@@ -29,6 +31,10 @@ class TerrainExplorer(ShowBase):
             'left': False,
             'right': False
         }
+        
+        # Game state
+        self.is_alive = True
+        self.game_over = False
         
         # Initialize components
         self._init_scene()
@@ -50,6 +56,12 @@ class TerrainExplorer(ShowBase):
         
         # Create trees
         self.trees = TreeManager(self.loader, self.render)
+        
+        # Create coins to collect
+        self.coins = CoinManager(self.loader, self.render)
+        
+        # Create dangerous obstacles (crabs)
+        self.obstacles = ObstacleManager(self.loader, self.render)
         
         # Create player character
         self.player = Player(self.loader, self.render)
@@ -89,6 +101,9 @@ class TerrainExplorer(ShowBase):
         self.accept("arrow_right", self.set_key, ['right', True])
         self.accept("arrow_right-up", self.set_key, ['right', False])
         
+        # Restart
+        self.accept("r", self.restart_game)
+        
         # Exit
         self.accept("escape", sys.exit)
     
@@ -102,20 +117,58 @@ class TerrainExplorer(ShowBase):
         if dt > 0.1:
             dt = 0.1
         
-        # Update player
-        self.player.update(self.keys, dt)
-        
-        # Update camera
-        player_pos = self.player.get_position()
-        player_heading = self.player.get_heading()
-        self.camera_controller.update(player_pos, player_heading, dt)
-        
-        # Update UI
-        is_moving = any([self.keys['forward'], self.keys['backward']])
-        self.ui.update_position(player_pos.x, player_pos.y, player_heading)
-        self.ui.update_status(is_moving)
+        if not self.game_over:
+            # Update player
+            self.player.update(self.keys, dt)
+            
+            # Get player position
+            player_pos = self.player.get_position()
+            player_heading = self.player.get_heading()
+            
+            # Update coins (check for collection)
+            self.coins.update(player_pos, dt)
+            
+            # Update obstacles and check collision
+            hit_obstacle = self.obstacles.update(player_pos, dt)
+            
+            if hit_obstacle:
+                self._handle_death()
+            
+            # Update camera
+            self.camera_controller.update(player_pos, player_heading, dt)
+            
+            # Update UI
+            self.ui.update_position(player_pos.x, player_pos.y, player_heading)
+            self.ui.update_coins(self.coins.get_collected_count(), self.coins.get_total_coins())
+            self.ui.update_health(self.is_alive)
         
         return task.cont
+    
+    def _handle_death(self):
+        """Handle player death"""
+        self.is_alive = False
+        self.game_over = True
+        coins_collected = self.coins.get_collected_count()
+        self.ui.show_game_over(coins_collected)
+        self.ui.update_health(False)
+    
+    def restart_game(self):
+        """Restart the game"""
+        if not self.game_over:
+            return
+        
+        # Reset game state
+        self.is_alive = True
+        self.game_over = False
+        
+        # Reset player position
+        self.player.model.setPos(50, 50, 2)
+        self.player.position.set(50, 50, 2)
+        self.player.heading = 0
+        
+        # Hide game over UI
+        self.ui.hide_game_over()
+        self.ui.update_health(True)
 
 if __name__ == "__main__":
     game = TerrainExplorer()
